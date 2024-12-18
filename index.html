@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="Crud.css">
+  <title>Synonyms CRUD</title>
+</head>
+<body>
+  <h1>Synonyms CRUD Interface</h1>
+
+  <form id="addForm">
+    <fieldset>
+      <legend>Add a New Record</legend>
+      <div>
+        <label>Synonym:</label>
+        <input type="text" id="synonym" required>
+        <label>Alt Synonyms:</label>
+        <input type="text" id="altsynonyms" required>
+        <label>Tech Word:</label>
+        <input type="text" id="techword" required>
+        <button type="button" onclick="addRecord()">Add</button>
+      </form>
+      </div>
+    </fieldset>
+
+
+  <table>
+    <thead>
+      <tr>
+        <th>Synonym</th>
+        <th>AltSynonyms</th>
+        <th>Tech Word</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="recordsTable"></tbody>
+  </table>
+
+  <script>
+    //api hosting link create
+    const API_URL = "http://localhost:5002/api/synonyms";
+
+    async function fetchRecords() {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      const table = document.getElementById("recordsTable");
+      table.innerHTML = "";
+      data.forEach(row => {
+        table.innerHTML += `
+          <tr>
+            <td>${row.synonym}</td>
+            <td>${row.altsynonyms}</td>
+            <td>${row.techword}</td>
+            <td>
+              <button style="background-color:green;" onclick="editRecord('${row.synonym}', '${row.altsynonyms}', '${row.techword}')">Edit</button>
+              <button style="background-color:red;"onclick="deleteRecord('${row.synonym}', '${row.altsynonyms}', '${row.techword}')">Delete</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+//api fetching
+    async function addRecord() {
+      const synonym = document.getElementById("synonym").value;
+      const altsynonyms = document.getElementById("altsynonyms").value;
+      const techword = document.getElementById("techword").value;
+
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ synonym, altsynonyms, techword })
+      });
+      fetchRecords();
+    }
+
+    async function editRecord(oldSynonym, oldAltSynonyms, oldTechWord) {
+      const synonym = prompt("Enter new Synonym:", oldSynonym);
+      const altsynonyms = prompt("Enter new Alt Synonyms:", oldAltSynonyms);
+      const techword = prompt("Enter new Tech Word:", oldTechWord);
+
+      if (synonym && altsynonyms && techword) {
+        await fetch(API_URL, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ oldSynonym, oldAltSynonyms, oldTechWord, synonym, altsynonyms, techword })
+        });
+        fetchRecords();
+      }
+    }
+
+    async function deleteRecord(synonym, altsynonyms, techword) {
+      if (confirm("Are you sure you want to delete this record?")) {
+        await fetch(API_URL, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ synonym, altsynonyms, techword })
+        });
+        fetchRecords();
+      }
+    }
+
+    // Initial fetch
+    fetchRecords();
+  </script>
+</body>
+</html>
