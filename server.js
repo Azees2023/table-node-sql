@@ -10,11 +10,15 @@ app.use(cors());
 app.use(bodyParser.json());
 require("dotenv").config();
 
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+const connection = mysql.createConnection({
+    host: 'mysql-2b4e55a1-azeesrahmaann77-eb6a.l.aivencloud.com',
+    user: 'avnadmin',
+    password: 'AVNS_0ZPMmt3lCVXCnkBfR1j',
+    database: 'defaultdb',
+    port: 19677,
+    ssl: {
+        rejectUnauthorized: false // Enable SSL if required
+    }
 });
 
 // MySQL Connection
@@ -25,7 +29,7 @@ const db = mysql.createConnection({
   database: "sys",
 }); */
 
-db.connect((err) => {
+connection.connect((err) => {
   if (err) {
     console.error("Error connecting to the database:", err);
   } else {
@@ -82,7 +86,7 @@ app.delete("/api/synonyms", (req, res) => {
 });
 
 // Start the server
-const PORT = 5002;
+const PORT = 5003;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
